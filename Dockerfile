@@ -4,6 +4,7 @@ RUN useradd --no-log-init -d /app napcat
 
 WORKDIR /app
 
+COPY templates /app/
 
 # 下载NapCat和安装Linux QQ
 RUN version=$(curl -s "https://api.github.com/repos/NapNeko/NapCatQQ/releases/latest" | jq -r '.tag_name') && \
@@ -16,15 +17,14 @@ RUN version=$(curl -s "https://api.github.com/repos/NapNeko/NapCatQQ/releases/la
     rm -rf ./NapCat.Shell NapCat.Shell.zip && \
     arch=$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/) && \
     curl -o linuxqq.deb https://dldir1.qq.com/qqfile/qq/QQNT/ab90fdfa/linuxqq_3.2.20-40768_${arch}.deb && \
-    dpkg -i --force-depends linuxqq.deb && rm linuxqq.deb && \
+    apt-get update && apt-get install -y --no-install-recommends xdg-utils desktop-file-utils supervisor libappindicator3-1 && \
+    apt-get install -y ./linuxqq.deb && rm -f linuxqq.deb && \
     echo "(async () => {await import('file:///app/napcat/napcat.mjs');})();" > /opt/QQ/resources/app/loadNapCat.js && \
-    sed -i 's|"main": "[^"]*"|"main": "./loadNapCat.js"|' /opt/QQ/resources/app/package.json
+    sed -i 's|"main": "[^"]*"|"main": "./loadNapCat.js"|' /opt/QQ/resources/app/package.json && \
+    rm -rf /var/lib/apt/lists/* && mkdir -p /var/log/supervisor
 
 VOLUME /app/napcat/config
 VOLUME /app/.config/QQ
-
-RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /var/log/supervisor
 
 ENV DISPLAY=:1 \
     FFMPEG_PATH=/usr/bin/ffmpeg
