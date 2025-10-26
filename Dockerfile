@@ -4,6 +4,8 @@ RUN useradd --no-log-init -d /app napcat
 
 WORKDIR /app
 
+COPY templates /app/
+
 # 下载NapCat和安装Linux QQ
 RUN version=$(curl -s "https://api.github.com/repos/NapNeko/NapCatQQ/releases/latest" | jq -r '.tag_name') && \
     echo "下载NapCat版本: $version" && \
