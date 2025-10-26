@@ -30,7 +30,5 @@ ENV DISPLAY=:1 \
     FFMPEG_PATH=/usr/bin/ffmpeg
 
 COPY supervisord.conf /etc/supervisor/supervisord.conf
-COPY docker-start.sh /usr/local/bin/docker-start.sh
-RUN chmod +x /usr/local/bin/docker-start.sh
 
-ENTRYPOINT ["/usr/local/bin/docker-start.sh"]
+ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
